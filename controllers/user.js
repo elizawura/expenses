@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { loginUserValidator, userValidator } from "../validators/user.js";
 import { User } from "../models/user.js";
 import jwt from "jsonwebtoken";
+import { sendEmail } from "../utils/mailing.js";
 
 export const registerUser = async (req, res) => {
   const { error, value } = userValidator.validate(req.body);
@@ -21,6 +22,14 @@ export const registerUser = async (req, res) => {
       email: value.email,
       password: hashedPassword,
     });
+
+    const sendWelcomeEmail = await sendEmail(
+      newUser.email,
+      "Welcome to Notes",
+      `Hello ${newUser.userName} `
+    );
+
+    console.log(sendWelcomeEmail);
 
     return res.status(201).json({
       message: "User created successfully",
